@@ -10,7 +10,7 @@ html {
 }
 
 body {
-  background-color: #191931;
+  background-image: url('./img/fundogf.png');
   color: #e1e1f1;
   display: flex;
   flex-direction: column;
@@ -19,6 +19,29 @@ body {
   padding-top: 4rem;
   padding-bottom: 2rem;
   gap: 1rem;
+  background-repeat: no-repeat; /* Evita a repetição da imagem */
+  background-position: top center; /* Centraliza a imagem horizontal e verticalmente */
+}
+
+@font-face {
+  font-family: 'RifficFree-Bold'; /* Defina o nome da sua fonte */
+  src: url('./fonts/RifficFree-Bold.ttf') format('truetype'); /* Caminho para o arquivo .ttf */
+  font-weight: normal; /* Peso da fonte */
+  font-style: normal;  /* Estilo da fonte */
+}
+
+@font-face {
+  font-family: 'NeueAlteGrotesk-Medium'; /* Defina um nome único para a segunda fonte */
+  src: url('./fonts/NeueAlteGrotesk-Medium.ttf') format('truetype'); /* Caminho para o arquivo da segunda fonte */
+  font-weight: normal; /* Defina o peso da fonte, ajuste se necessário */
+  font-style: normal;  /* Defina o estilo da fonte, ajuste se necessário */
+}
+
+@font-face {
+  font-family: 'neulis-black'; /* Defina um nome único para a segunda fonte */
+  src: url('./fonts/neulis-black.otf') format('truetype'); /* Caminho para o arquivo da segunda fonte */
+  font-weight: normal; /* Defina o peso da fonte, ajuste se necessário */
+  font-style: normal;  /* Defina o estilo da fonte, ajuste se necessário */
 }
 
 .bg-text-animation {
@@ -40,6 +63,7 @@ body {
   aspect-ratio: 1/1;
   object-fit: cover;
   object-position: top;
+  border: 2px solid #ffffff;
 }
 
 a {
@@ -49,7 +73,7 @@ a {
 
 .sosmed i {
   font-size: 1.5rem;
-  color: #8787a3;
+  color: #ffffff;
 }
 
 .sosmed i:hover {
@@ -75,6 +99,17 @@ ul.links li:not(:last-child) {
 
 .slogan {
   text-align: center;
+  color: #fffff;
+  font-family:'NeueAlteGrotesk-Medium', sans-serif;
+  color: #ffffff;
+}
+
+.tituloft {
+  text-align: center;
+  color: #ffffff;
+  font-family:'RifficFree-Bold', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
 }
 
 .links {
@@ -105,10 +140,12 @@ ul.links li:not(:last-child) {
 .links .link-text {
   text-align: center;
   flex-grow: 1;
+  color: #ffffff;
+  font-family:'NeueAlteGrotesk-Medium', sans-serif;
 }
 
 .link-action {
-  color: #8787a3;
+  color: #ffffff;
   cursor: pointer;
   padding: 10px;
 }
@@ -119,13 +156,14 @@ ul.links li:not(:last-child) {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: #8787a3;
+  color: #ffffff;
   font-size: 0.75rem;
+  font-family:'NeueAlteGrotesk-Medium', sans-serif;
 }
 
 .copyright img {
   width: 13rem;
-  opacity: 0.4;
+  /*opacity: 0.4;*/
 }
 
 #toast {

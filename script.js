@@ -13,7 +13,7 @@ actionLink.forEach((action) => {
      */
     document.getElementById("toast").innerHTML = `
         <div class="toast-container">
-            <p>✅ Link <strong> ${action.parentElement.innerText} </strong> berhasil disalin!</p>
+            <p>✅ Link do <strong> ${action.parentElement.innerText} </strong> copiado!</p>
         </div>
     `;
 
