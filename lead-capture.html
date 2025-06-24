@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Fullano - Acesso Exclusivo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="img/favicongrupofullano.png">
+    <style>
+        /* Estilos específicos para a tela de captura de leads */
+        .lead-capture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #00c9ff 0%, #1e1cb0 100%);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .lead-capture-container {
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lead-capture-header {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .lead-capture-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 2rem;
+        }
+
+        .lead-capture-title {
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+            font-size: 2rem;
+            color: #265a96;
+            margin-bottom: 0.5rem;
+        }
+
+        .lead-capture-subtitle {
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .lead-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group-lead {
+            text-align: left;
+        }
+
+        .form-group-lead label {
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .form-group-lead input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group-lead input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group-lead input.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, #1c7dff, #0051c4);
+            color: white;
+            border: none;
+            padding: 1.25rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(to right, #2289ff, #1c7dff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(28, 125, 255, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .privacy-notice {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 1rem;
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            line-height: 1.4;
+        }
+
+        /* Tema escuro para a tela de captura */
+        body.dark-mode .lead-capture-container {
+            background: #0a1525;
+            color: #ffffff;
+        }
+
+        body.dark-mode .lead-capture-title {
+            color: #60a5fa;
+        }
+
+        body.dark-mode .lead-capture-subtitle {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .form-group-lead label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .form-group-lead input {
+            background: #1a2942;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        body.dark-mode .form-group-lead input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        body.dark-mode .form-group-lead input.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        body.dark-mode .privacy-notice {
+            color: #cbd5e1;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .lead-capture-container {
+                padding: 2rem;
+                margin: 10px;
+            }
+
+            .lead-capture-title {
+                font-size: 1.5rem;
+            }
+
+            .lead-capture-subtitle {
+                font-size: 1rem;
+            }
+
+            .lead-capture-header {
+                top: 0.5rem;
+                right: 0.5rem;
+                gap: 0.25rem;
+            }
+
+            .theme-toggle-lead,
+            .language-toggle-lead {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lead-capture-container {
+                padding: 1.5rem;
+            }
+
+            .lead-capture-logo {
+                width: 100px;
+            }
+
+            .lead-capture-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Botões de tema e idioma para a tela de captura - CORRIGIDO */
+        .theme-toggle-lead,
+        .language-toggle-lead {
+            background: rgba(37, 99, 235, 0.1);
+            border: 2px solid #2563eb;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2563eb;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle-lead:hover,
+        .language-toggle-lead:hover {
+            background: #2563eb;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Modo escuro para os botões */
+        body.dark-mode .theme-toggle-lead,
+        body.dark-mode .language-toggle-lead {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        body.dark-mode .theme-toggle-lead:hover,
+        body.dark-mode .language-toggle-lead:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .language-selector-lead {
+            position: relative;
+        }
+
+        .language-dropdown-lead {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .language-dropdown-lead.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .language-option-lead {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            color: #333;
+        }
+
+        .language-option-lead:hover {
+            background: #f3f4f6;
+        }
+
+        .language-option-lead:first-child {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .language-option-lead:last-child {
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .flag-icon-lead {
+            width: 20px;
+            height: auto;
+            border-radius: 2px;
+        }
+
+        body.dark-mode .language-dropdown-lead {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .language-option-lead {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .language-option-lead:hover {
+            background: #4b5563;
+        }
+
+        /* Success message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .success-title {
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+            font-size: 1.5rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+
+        .success-subtitle {
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .continue-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+        }
+
+        .continue-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .success-title {
+            color: #34d399;
+        }
+
+        body.dark-mode .success-subtitle {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Captura de Leads -->
+    <div class="lead-capture-overlay" id="leadCaptureOverlay">
+        <div class="lead-capture-container">
+            <!-- Controles de tema e idioma -->
+            <div class="lead-capture-header">
+                <div class="language-selector-lead">
+                    <button class="language-toggle-lead" id="languageToggleLead">
+                        <img src="https://flagcdn.com/w20/br.png" alt="Português" class="flag-icon-lead" id="currentFlagLead">
+                    </button>
+                    <div class="language-dropdown-lead" id="languageDropdownLead">
+                        <div class="language-option-lead" data-lang="pt">
+                            <img src="https://flagcdn.com/w20/br.png" alt="Português" class="flag-icon-lead">
+                            <span>Português</span>
+                        </div>
+                        <div class="language-option-lead" data-lang="en">
+                            <img src="https://flagcdn.com/w20/us.png" alt="English" class="flag-icon-lead">
+                            <span>English</span>
+                        </div>
+                        <div class="language-option-lead" data-lang="es">
+                            <img src="https://flagcdn.com/w20/es.png" alt="Español" class="flag-icon-lead">
+                            <span>Español</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="theme-toggle-lead" id="themeToggleLead">
+                    <i class="fas fa-sun" id="themeIconLead"></i>
+                </button>
+            </div>
+
+            <!-- Formulário de captura -->
+            <div class="lead-form-container" id="leadFormContainer">
+                <img src="img/logogrupofullano.png" alt="Grupo Fullano" class="lead-capture-logo">
+                
+                <h1 class="lead-capture-title" data-translate="leadTitle">Bem-vindo ao Grupo Fullano!</h1>
+                <p class="lead-capture-subtitle" data-translate="leadSubtitle">Para acessar nosso site e descobrir as melhores experiências gastronômicas da Paraíba, precisamos de algumas informações suas.</p>
+
+                <form class="lead-form" id="leadForm" action="https://api.web3forms.com/submit" method="POST">
+                    <!-- Web3Forms Access Key -->
+                    <input type="hidden" name="access_key" value="b116e59a-7344-49ad-b922-64c1f27e841f">
+                    
+                    <!-- Honeypot Spam Protection -->
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+                    
+                    <!-- Custom subject -->
+                    <input type="hidden" name="subject" value="Nova Lead Capturada - Grupo Fullano">
+                    
+                    <!-- Redirect after success -->
+                    <input type="hidden" name="redirect" value="https://grupofullano.github.io/success.html">
+
+                    <div class="form-group-lead">
+                        <label for="leadName" data-translate="nameLabel">Nome Completo *</label>
+                        <input type="text" id="leadName" name="name" required>
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+
+                    <div class="form-group-lead">
+                        <label for="leadEmail" data-translate="emailLabel">E-mail *</label>
+                        <input type="email" id="leadEmail" name="email" required>
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+
+                    <div class="form-group-lead">
+                        <label for="leadPhone" data-translate="phoneLabel">Telefone *</label>
+                        <input type="tel" id="leadPhone" name="phone" required pattern="[0-9\s$$$$\-\+]*" inputmode="numeric">
+                        <div class="error-message" id="phoneError"></div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                        <span data-translate="submitButton">Acessar Site</span>
+                    </button>
+                </form>
+
+                <p class="privacy-notice" data-translate="privacyNotice">
+                    Seus dados estão seguros conosco. Utilizamos essas informações apenas para melhorar sua experiência e enviar ofertas exclusivas. Não compartilhamos seus dados com terceiros.
+                </p>
+            </div>
+
+            <!-- Mensagem de sucesso -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="success-title" data-translate="successTitle">Obrigado!</h2>
+                <p class="success-subtitle" data-translate="successSubtitle">Suas informações foram enviadas com sucesso. Agora você pode explorar nosso site e descobrir as melhores experiências gastronômicas da Paraíba!</p>
+                <button class="continue-btn" id="continueBtn" data-translate="continueButton">Continuar para o Site</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Traduções para a tela de captura de leads
+        const leadTranslations = {
+            pt: {
+                leadTitle: "Bem-vindo ao Grupo Fullano!",
+                leadSubtitle: "Para acessar nosso site e descobrir as melhores experiências gastronômicas da Paraíba, precisamos de algumas informações suas.",
+                nameLabel: "Nome Completo *",
+                emailLabel: "E-mail *",
+                phoneLabel: "Telefone *",
+                submitButton: "Acessar Site",
+                privacyNotice: "Seus dados estão seguros conosco. Utilizamos essas informações apenas para melhorar sua experiência e enviar ofertas exclusivas. Não compartilhamos seus dados com terceiros.",
+                successTitle: "Obrigado!",
+                successSubtitle: "Suas informações foram enviadas com sucesso. Agora você pode explorar nosso site e descobrir as melhores experiências gastronômicas da Paraíba!",
+                continueButton: "Continuar para o Site",
+                nameRequired: "Por favor, digite seu nome completo",
+                emailRequired: "Por favor, digite um e-mail válido",
+                phoneRequired: "Por favor, digite um telefone válido",
+                phoneInvalid: "Por favor, digite apenas números no telefone"
+            },
+            en: {
+                leadTitle: "Welcome to Grupo Fullano!",
+                leadSubtitle: "To access our website and discover the best gastronomic experiences in Paraíba, we need some information from you.",
+                nameLabel: "Full Name *",
+                emailLabel: "E-mail *",
+                phoneLabel: "Phone *",
+                submitButton: "Access Website",
+                privacyNotice: "Your data is safe with us. We use this information only to improve your experience and send exclusive offers. We do not share your data with third parties.",
+                successTitle: "Thank you!",
+                successSubtitle: "Your information has been sent successfully. Now you can explore our website and discover the best gastronomic experiences in Paraíba!",
+                continueButton: "Continue to Website",
+                nameRequired: "Please enter your full name",
+                emailRequired: "Please enter a valid email",
+                phoneRequired: "Please enter a valid phone number",
+                phoneInvalid: "Please enter only numbers in the phone field"
+            },
+            es: {
+                leadTitle: "¡Bienvenido a Grupo Fullano!",
+                leadSubtitle: "Para acceder a nuestro sitio web y descubrir las mejores experiencias gastronómicas de Paraíba, necesitamos alguna información tuya.",
+                nameLabel: "Nombre Completo *",
+                emailLabel: "E-mail *",
+                phoneLabel: "Teléfono *",
+                submitButton: "Acceder al Sitio",
+                privacyNotice: "Tus datos están seguros con nosotros. Utilizamos esta información solo para mejorar tu experiencia y enviar ofertas exclusivas. No compartimos tus datos con terceros.",
+                successTitle: "¡Gracias!",
+                successSubtitle: "Tu información ha sido enviada con éxito. ¡Ahora puedes explorar nuestro sitio web y descubrir las mejores experiencias gastronómicas de Paraíba!",
+                continueButton: "Continuar al Sitio",
+                nameRequired: "Por favor, ingresa tu nombre completo",
+                emailRequired: "Por favor, ingresa un email válido",
+                phoneRequired: "Por favor, ingresa un teléfono válido",
+                phoneInvalid: "Por favor, ingresa solo números en el teléfono"
+            }
+        };
+
+        // Idioma atual
+        let currentLeadLanguage = localStorage.getItem("preferredLanguage") || "pt";
+
+        // Verificar se o usuário já preencheu o formulário
+        function checkLeadCaptureStatus() {
+            const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
+            const leadCaptureOverlay = document.getElementById("leadCaptureOverlay");
+            
+            if (leadCaptured === "true") {
+                // Usuário já preencheu, esconder a tela e redirecionar
+                leadCaptureOverlay.style.display = "none";
+                window.location.href = "index.html";
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Aplicar tema salvo
+        function applyLeadTheme() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            const themeIconLead = document.getElementById("themeIconLead");
+            
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+                themeIconLead.className = "fas fa-moon";
+            } else {
+                document.body.classList.remove("dark-mode");
+                themeIconLead.className = "fas fa-sun";
+            }
+        }
+
+        // Alternar tema
+        function toggleLeadTheme() {
+            const body = document.body;
+            const themeIconLead = document.getElementById("themeIconLead");
+            
+            body.classList.toggle("dark-mode");
+            
+            if (body.classList.contains("dark-mode")) {
+                themeIconLead.className = "fas fa-moon";
+                localStorage.setItem("theme", "dark");
+            } else {
+                themeIconLead.className = "fas fa-sun";
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+        // Alterar idioma
+        function changeLeadLanguage(lang) {
+            currentLeadLanguage = lang;
+            localStorage.setItem("preferredLanguage", lang);
+
+            const currentFlagLead = document.getElementById("currentFlagLead");
+            const flagMap = {
+                pt: "br",
+                en: "us",
+                es: "es"
+            };
+            currentFlagLead.src = `https://flagcdn.com/w20/${flagMap[lang]}.png`;
+
+            translateLeadPage();
+        }
+
+        // Traduzir página
+        function translateLeadPage() {
+            const elementsToTranslate = document.querySelectorAll("[data-translate]");
+            
+            elementsToTranslate.forEach(element => {
+                const key = element.getAttribute("data-translate");
+                if (leadTranslations[currentLeadLanguage] && leadTranslations[currentLeadLanguage][key]) {
+                    element.textContent = leadTranslations[currentLeadLanguage][key];
+                }
+            });
+        }
+
+        // Configurar seletores de idioma e tema
+        function setupLeadControls() {
+            const languageToggleLead = document.getElementById("languageToggleLead");
+            const languageDropdownLead = document.getElementById("languageDropdownLead");
+            const languageOptionsLead = document.querySelectorAll(".language-option-lead");
+            const themeToggleLead = document.getElementById("themeToggleLead");
+
+            // Seletor de idioma
+            languageToggleLead.addEventListener("click", (e) => {
+                e.stopPropagation();
+                languageDropdownLead.classList.toggle("active");
+            });
+
+            document.addEventListener("click", () => {
+                languageDropdownLead.classList.remove("active");
+            });
+
+            languageOptionsLead.forEach(option => {
+                option.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const lang = option.getAttribute("data-lang");
+                    changeLeadLanguage(lang);
+                    languageDropdownLead.classList.remove("active");
+                });
+            });
+
+            // Botão de tema
+            themeToggleLead.addEventListener("click", toggleLeadTheme);
+        }
+
+        // Validação de campos
+        function validateField(field, errorElement, validationType) {
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = "";
+
+            field.classList.remove("error");
+            errorElement.textContent = "";
+
+            switch (validationType) {
+                case "name":
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].nameRequired;
+                    } else if (value.length < 2) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].nameRequired;
+                    }
+                    break;
+
+                case "email":
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].emailRequired;
+                    } else if (!emailRegex.test(value)) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].emailRequired;
+                    }
+                    break;
+
+                case "phone":
+                    // Remover todos os caracteres não numéricos para validação
+                    const phoneNumbers = value.replace(/\D/g, "");
+                    if (!value) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].phoneRequired;
+                    } else if (phoneNumbers.length < 10) {
+                        isValid = false;
+                        errorMessage = leadTranslations[currentLeadLanguage].phoneRequired;
+                    }
+                    break;
+            }
+
+            if (!isValid) {
+                field.classList.add("error");
+                errorElement.textContent = errorMessage;
+            }
+
+            return isValid;
+        }
+
+        // Formatar telefone enquanto digita
+        function formatPhone(input) {
+            // Permitir apenas números, espaços, parênteses, hífen e sinal de mais
+            let value = input.value.replace(/[^\d\s$$$$\-\+]/g, "");
+            input.value = value;
+        }
+
+        // Configurar formulário
+        function setupLeadForm() {
+            const leadForm = document.getElementById("leadForm");
+            const leadName = document.getElementById("leadName");
+            const leadEmail = document.getElementById("leadEmail");
+            const leadPhone = document.getElementById("leadPhone");
+            const submitBtn = document.getElementById("submitBtn");
+            const loadingSpinner = document.getElementById("loadingSpinner");
+
+            // Validação em tempo real
+            leadName.addEventListener("blur", () => {
+                validateField(leadName, document.getElementById("nameError"), "name");
+            });
+
+            leadEmail.addEventListener("blur", () => {
+                validateField(leadEmail, document.getElementById("emailError"), "email");
+            });
+
+            leadPhone.addEventListener("input", () => {
+                formatPhone(leadPhone);
+            });
+
+            leadPhone.addEventListener("blur", () => {
+                validateField(leadPhone, document.getElementById("phoneError"), "phone");
+            });
+
+            // Submissão do formulário
+            leadForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                // Validar todos os campos
+                const nameValid = validateField(leadName, document.getElementById("nameError"), "name");
+                const emailValid = validateField(leadEmail, document.getElementById("emailError"), "email");
+                const phoneValid = validateField(leadPhone, document.getElementById("phoneError"), "phone");
+
+                if (!nameValid || !emailValid || !phoneValid) {
+                    return;
+                }
+
+                // Mostrar loading
+                submitBtn.disabled = true;
+                loadingSpinner.style.display = "inline-block";
+
+                try {
+                    // Enviar dados para Web3Forms
+                    const formData = new FormData(leadForm);
+                    
+                    const response = await fetch("https://api.web3forms.com/submit", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Marcar como capturado no localStorage
+                        localStorage.setItem("grupofullano_lead_captured", "true");
+                        
+                        // Mostrar mensagem de sucesso
+                        showSuccessMessage();
+                    } else {
+                        throw new Error("Erro no envio");
+                    }
+                } catch (error) {
+                    console.error("Erro ao enviar formulário:", error);
+                    alert("Erro ao enviar formulário. Tente novamente.");
+                } finally {
+                    // Esconder loading
+                    submitBtn.disabled = false;
+                    loadingSpinner.style.display = "none";
+                }
+            });
+        }
+
+        // Mostrar mensagem de sucesso
+        function showSuccessMessage() {
+            const leadFormContainer = document.getElementById("leadFormContainer");
+            const successMessage = document.getElementById("successMessage");
+            const continueBtn = document.getElementById("continueBtn");
+
+            leadFormContainer.style.display = "none";
+            successMessage.style.display = "block";
+
+            // Botão para continuar
+            continueBtn.addEventListener("click", () => {
+                window.location.href = "index.html";
+            });
+
+            // Redirecionar automaticamente após 5 segundos
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 5000);
+        }
+
+        // Inicializar tudo quando a página carregar
+        document.addEventListener("DOMContentLoaded", () => {
+            // Verificar se precisa mostrar a tela de captura
+            if (!checkLeadCaptureStatus()) {
+                return;
+            }
+
+            // Aplicar tema e idioma salvos
+            applyLeadTheme();
+            changeLeadLanguage(currentLeadLanguage);
+
+            // Configurar controles
+            setupLeadControls();
+            setupLeadForm();
+        });
+    </script>
+
+    <script>
+// INTEGRAÇÃO AUTOMÁTICA - Verificar se deve mostrar a tela de leads
+(function() {
+    // Verificar se já capturou lead
+    const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
+    
+    // Se já capturou, redirecionar para o site principal
+    if (leadCaptured === "true") {
+        window.location.href = "index.html";
+        return;
+    }
+    
+    // Se não capturou, mostrar a tela (que já está sendo mostrada)
+    console.log("Mostrando tela de captura de leads");
+})();
+</script>
+</body>
+</html>
