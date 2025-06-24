@@ -3123,3 +3123,331 @@ function initSimpleAnalytics() {
 
 // Inicializar analytics discreto quando a página carregar
 initSimpleAnalytics()
+
+// CORREÇÕES CRÍTICAS PARA DISPOSITIVOS MÓVEIS - SCROLL E TOUCH
+
+// Função para detectar dispositivos móveis
+function isMobileDevice() {
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth <= 768
+  )
+}
+
+// Função para corrigir problemas de scroll em dispositivos móveis
+function fixMobileScrollIssues() {
+  if (isMobileDevice()) {
+    console.log("📱 Aplicando correções para dispositivos móveis")
+
+    // Garantir que o body permita scroll
+    document.body.style.overflow = "auto"
+    document.body.style.overflowX = "hidden"
+    document.body.style.webkitOverflowScrolling = "touch"
+    document.body.style.height = "auto"
+    document.body.style.minHeight = "100vh"
+
+    // Garantir que o html permita scroll
+    document.documentElement.style.overflow = "auto"
+    document.documentElement.style.overflowX = "hidden"
+    document.documentElement.style.webkitOverflowScrolling = "touch"
+    document.documentElement.style.height = "auto"
+    document.documentElement.style.minHeight = "100vh"
+
+    // Remover qualquer position fixed problemático do body
+    document.body.style.position = "relative"
+
+    // Garantir que containers principais não bloqueiem scroll
+    const containers = document.querySelectorAll(
+      ".container, .hero, .locations, .about, .testimonials, .gallery, .faq, .footer",
+    )
+    containers.forEach((container) => {
+      if (container) {
+        container.style.overflow = "visible"
+        container.style.position = "relative"
+        container.style.maxWidth = "100vw"
+      }
+    })
+  }
+}
+
+// Função para corrigir problemas específicos do iOS
+function fixIOSScrollIssues() {
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    console.log("🍎 Aplicando correções específicas para iOS")
+
+    // Prevenir zoom em inputs
+    const inputs = document.querySelectorAll("input, select, textarea")
+    inputs.forEach((input) => {
+      if (input.style.fontSize === "" || Number.parseFloat(input.style.fontSize) < 16) {
+        input.style.fontSize = "16px"
+      }
+    })
+
+    // Corrigir problema de scroll no iOS Safari
+    document.body.style.webkitTextSizeAdjust = "100%"
+    document.body.style.msTextSizeAdjust = "100%"
+
+    // Garantir que o viewport seja correto
+    const viewport = document.querySelector('meta[name="viewport"]')
+    if (viewport) {
+      viewport.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
+      )
+    }
+  }
+}
+
+// Função para corrigir problemas de touch em carrosséis
+function fixCarouselTouchIssues() {
+  const carousels = document.querySelectorAll(".testimonials-grid, .gallery-grid")
+  carousels.forEach((carousel) => {
+    if (carousel && isMobileDevice()) {
+      carousel.style.touchAction = "pan-x"
+      carousel.style.webkitOverflowScrolling = "touch"
+
+      // Garantir que o carrossel seja scrollável
+      carousel.style.overflowX = "auto"
+      carousel.style.overflowY = "hidden"
+    }
+  })
+}
+
+// Função para corrigir modais em dispositivos móveis
+function fixModalScrollIssues() {
+  const modals = document.querySelectorAll(".ai-chat-modal, .cardapio-preview-modal, .translation-modal")
+  modals.forEach((modal) => {
+    if (modal && isMobileDevice()) {
+      modal.style.position = "fixed"
+      modal.style.top = "0"
+      modal.style.left = "0"
+      modal.style.right = "0"
+      modal.style.bottom = "0"
+      modal.style.overflow = "auto"
+      modal.style.webkitOverflowScrolling = "touch"
+    }
+  })
+}
+
+// Função para garantir que o splash screen não bloqueie o scroll
+function fixSplashScreenIssues() {
+  const splashScreen = document.getElementById("splashScreen")
+  if (splashScreen) {
+    // Garantir que a splash screen seja removida corretamente
+    splashScreen.addEventListener("transitionend", () => {
+      if (splashScreen.classList.contains("fade-out")) {
+        splashScreen.style.display = "none"
+        splashScreen.remove()
+
+        // Garantir que o scroll funcione após remover splash
+        fixMobileScrollIssues()
+      }
+    })
+
+    // Fallback para remover splash screen após 3 segundos
+    setTimeout(() => {
+      if (splashScreen && splashScreen.parentNode) {
+        splashScreen.style.display = "none"
+        splashScreen.remove()
+        fixMobileScrollIssues()
+      }
+    }, 3000)
+  }
+}
+
+// Função para corrigir problemas de altura em dispositivos móveis
+function fixMobileHeightIssues() {
+  if (isMobileDevice()) {
+    // Corrigir altura do viewport em dispositivos móveis
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty("--vh", `${vh}px`)
+    }
+
+    setVH()
+    window.addEventListener("resize", setVH)
+    window.addEventListener("orientationchange", () => {
+      setTimeout(setVH, 100)
+    })
+  }
+}
+
+// Função para prevenir problemas de scroll horizontal
+function preventHorizontalScroll() {
+  // Garantir que nenhum elemento cause scroll horizontal
+  const allElements = document.querySelectorAll("*")
+  allElements.forEach((element) => {
+    const computedStyle = window.getComputedStyle(element)
+    if (computedStyle.position === "fixed" || computedStyle.position === "absolute") {
+      const rect = element.getBoundingClientRect()
+      if (rect.right > window.innerWidth) {
+        element.style.maxWidth = "100vw"
+        element.style.right = "0"
+      }
+    }
+  })
+}
+
+// Função para corrigir problemas de toque em elementos
+function fixTouchIssues() {
+  if (isMobileDevice()) {
+    // Adicionar suporte a toque para elementos clicáveis
+    const clickableElements = document.querySelectorAll(
+      "button, a, .clickable, .card, .testimonial-card, .gallery-item",
+    )
+    clickableElements.forEach((element) => {
+      element.style.cursor = "pointer"
+      element.style.webkitTapHighlightColor = "rgba(0,0,0,0.1)"
+
+      // Adicionar feedback visual para toque
+      element.addEventListener(
+        "touchstart",
+        function () {
+          this.style.opacity = "0.8"
+        },
+        { passive: true },
+      )
+
+      element.addEventListener(
+        "touchend",
+        function () {
+          setTimeout(() => {
+            this.style.opacity = "1"
+          }, 150)
+        },
+        { passive: true },
+      )
+    })
+  }
+}
+
+// Função para corrigir problemas específicos de navegadores móveis
+function fixMobileBrowserIssues() {
+  // Corrigir problema do Chrome mobile com position fixed
+  if (/Chrome/.test(navigator.userAgent) && isMobileDevice()) {
+    const fixedElements = document.querySelectorAll(".header, .floating-buttons")
+    fixedElements.forEach((element) => {
+      element.style.transform = "translateZ(0)"
+      element.style.webkitTransform = "translateZ(0)"
+    })
+  }
+
+  // Corrigir problema do Samsung Internet
+  if (/SamsungBrowser/.test(navigator.userAgent)) {
+    document.body.style.minHeight = "100vh"
+    document.body.style.height = "auto"
+  }
+}
+
+// Função principal para aplicar todas as correções móveis
+function applyMobileFixesOnLoad() {
+  console.log("🔧 Aplicando correções para dispositivos móveis...")
+
+  fixMobileScrollIssues()
+  fixIOSScrollIssues()
+  fixCarouselTouchIssues()
+  fixModalScrollIssues()
+  fixSplashScreenIssues()
+  fixMobileHeightIssues()
+  fixTouchIssues()
+  fixMobileBrowserIssues()
+
+  // Aplicar correções após um pequeno delay para garantir que tudo carregou
+  setTimeout(() => {
+    preventHorizontalScroll()
+    fixMobileScrollIssues()
+  }, 500)
+
+  console.log("✅ Correções móveis aplicadas com sucesso!")
+}
+
+// Função para reaplicar correções quando necessário
+function reapplyMobileFixes() {
+  if (isMobileDevice()) {
+    fixMobileScrollIssues()
+    preventHorizontalScroll()
+  }
+}
+
+// Event listeners para aplicar correções
+document.addEventListener("DOMContentLoaded", applyMobileFixesOnLoad)
+window.addEventListener("load", applyMobileFixesOnLoad)
+window.addEventListener("resize", reapplyMobileFixes)
+window.addEventListener("orientationchange", () => {
+  setTimeout(reapplyMobileFixes, 200)
+})
+
+// Aplicar correções imediatamente se o DOM já estiver carregado
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", applyMobileFixesOnLoad)
+} else {
+  applyMobileFixesOnLoad()
+}
+
+// Correção específica para o problema de scroll travado
+function forceScrollFix() {
+  if (isMobileDevice()) {
+    // Forçar reflow para corrigir problemas de scroll
+    document.body.style.display = "none"
+    document.body.offsetHeight // Trigger reflow
+    document.body.style.display = ""
+
+    // Garantir que o scroll funcione
+    document.body.scrollTop = 0
+    window.scrollTo(0, 0)
+
+    // Aplicar correções novamente
+    setTimeout(() => {
+      fixMobileScrollIssues()
+    }, 100)
+  }
+}
+
+// Aplicar correção de scroll forçada após carregamento completo
+window.addEventListener("load", () => {
+  setTimeout(forceScrollFix, 1000)
+})
+
+// Monitorar mudanças no DOM que possam afetar o scroll
+const scrollObserver = new MutationObserver((mutations) => {
+  let shouldReapplyFixes = false
+
+  mutations.forEach((mutation) => {
+    if (mutation.type === "childList" || mutation.type === "attributes") {
+      shouldReapplyFixes = true
+    }
+  })
+
+  if (shouldReapplyFixes && isMobileDevice()) {
+    setTimeout(reapplyMobileFixes, 100)
+  }
+})
+
+// Iniciar observação do DOM
+scrollObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ["style", "class"],
+})
+
+// Adicionar meta tag viewport se não existir
+function ensureViewportMeta() {
+  let viewport = document.querySelector('meta[name="viewport"]')
+  if (!viewport) {
+    viewport = document.createElement("meta")
+    viewport.name = "viewport"
+    viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    document.head.appendChild(viewport)
+  } else {
+    viewport.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
+    )
+  }
+}
+
+// Aplicar meta viewport
+ensureViewportMeta()
+
+console.log("📱 Sistema de correções móveis inicializado!")
