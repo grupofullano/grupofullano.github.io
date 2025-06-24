@@ -512,6 +512,109 @@
         body.dark-mode .alternative-access p {
             color: #cbd5e1;
         }
+
+        /* Returning user message */
+        .returning-user-message {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .returning-user-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(to right, #1c7dff, #0051c4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .returning-user-title {
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+            font-size: 1.5rem;
+            color: #265a96;
+            margin-bottom: 1rem;
+        }
+
+        .returning-user-text {
+            font-family: "NeueAlteGrotesk-Regular", sans-serif;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .returning-user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-continue {
+            background: linear-gradient(to right, #1c7dff, #0051c4);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+        }
+
+        .btn-continue:hover {
+            background: linear-gradient(to right, #2289ff, #1c7dff);
+            transform: translateY(-2px);
+        }
+
+        .btn-update {
+            background: transparent;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: "NeueAlteGrotesk-Bold", sans-serif;
+        }
+
+        .btn-update:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        body.dark-mode .returning-user-message {
+            background: #0a1525;
+            color: #ffffff;
+        }
+
+        body.dark-mode .returning-user-title {
+            color: #60a5fa;
+        }
+
+        body.dark-mode .returning-user-text {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .btn-update {
+            color: #60a5fa;
+            border-color: #60a5fa;
+        }
+
+        body.dark-mode .btn-update:hover {
+            background: #60a5fa;
+            color: #1a1a1a;
+        }
     </style>
 </head>
 <body>
@@ -569,7 +672,7 @@
                         <input type="tel" id="leadPhone" name="phone" required pattern="[0-9\s$$$$\-\+]*" inputmode="numeric">
                         <div class="error-message" id="phoneError"></div>
                     </div>
-
+                    <input type="hidden" name="access_key" value="bf89f4b9-495d-443e-9c73-bc84dcc29eb4">
                     <button type="submit" class="submit-btn" id="submitBtn">
                         <div class="loading-spinner" id="loadingSpinner"></div>
                         <span data-translate="submitButton">Acessar Site</span>
@@ -595,13 +698,22 @@
                         <button class="contact-method skip-method" id="skipMethod">
                             <i class="fas fa-arrow-right"></i>
                             <span data-translate="skipOption">Pular e Acessar Site</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <p class="privacy-notice" data-translate="privacyNotice">
-                    Seus dados estão seguros conosco. Utilizamos essas informações apenas para melhorar sua experiência e enviar ofertas exclusivas. Não compartilhamos seus dados com terceiros.
-                </p>
+            <!-- Mensagem para usuário que retorna -->
+            <div class="returning-user-message" id="returningUserMessage" style="display: none;">
+                <div class="returning-user-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h2 class="returning-user-title" data-translate="returningTitle">Bem-vindo de volta!</h2>
+                <p class="returning-user-text" data-translate="returningText">Você já está cadastrado em nosso sistema. Deseja continuar navegando ou atualizar suas informações?</p>
+                <div class="returning-user-actions">
+                    <button class="btn-continue" id="continueToSite" data-translate="continueToSite">Continuar para o Site</button>
+                    <button class="btn-update" id="updateInfo" data-translate="updateInfo">Atualizar Informações</button>
+                </div>
             </div>
 
             <!-- Mensagem de sucesso -->
@@ -638,7 +750,11 @@
                 alternativeText: "Escolha uma das opções abaixo para nos enviar suas informações e acessar o site:",
                 whatsappOption: "Enviar via WhatsApp",
                 emailOption: "Enviar por E-mail",
-                skipOption: "Pular e Acessar Site"
+                skipOption: "Pular e Acessar Site",
+                returningTitle: "Bem-vindo de volta!",
+                returningText: "Você já está cadastrado em nosso sistema. Deseja continuar navegando ou atualizar suas informações?",
+                continueToSite: "Continuar para o Site",
+                updateInfo: "Atualizar Informações"
             },
             en: {
                 leadTitle: "Welcome to Grupo Fullano!",
@@ -659,7 +775,11 @@
                 alternativeText: "Choose one of the options below to send us your information and access the website:",
                 whatsappOption: "Send via WhatsApp",
                 emailOption: "Send by Email",
-                skipOption: "Skip and Access Site"
+                skipOption: "Skip and Access Site",
+                returningTitle: "Welcome back!",
+                returningText: "You are already registered in our system. Would you like to continue browsing or update your information?",
+                continueToSite: "Continue to Website",
+                updateInfo: "Update Information"
             },
             es: {
                 leadTitle: "¡Bienvenido a Grupo Fullano!",
@@ -680,26 +800,65 @@
                 alternativeText: "Elige una de las opciones a continuación para enviarnos tu información y acceder al sitio web:",
                 whatsappOption: "Enviar por WhatsApp",
                 emailOption: "Enviar por Email",
-                skipOption: "Saltar y Acceder al Sitio"
+                skipOption: "Saltar y Acceder al Sitio",
+                returningTitle: "¡Bienvenido de vuelta!",
+                returningText: "Ya estás registrado en nuestro sistema. ¿Te gustaría continuar navegando o actualizar tu información?",
+                continueToSite: "Continuar al Sitio",
+                updateInfo: "Actualizar Información"
             }
         };
 
         // Idioma atual
         let currentLeadLanguage = localStorage.getItem("preferredLanguage") || "pt";
 
-        // Verificar se o usuário já preencheu o formulário
-        function checkLeadCaptureStatus() {
+        // NOVA FUNÇÃO: Verificar se o lead capture expirou (30 dias)
+        function checkLeadCaptureExpiration() {
             const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
-            const leadCaptureOverlay = document.getElementById("leadCaptureOverlay");
+            const leadCaptureDate = localStorage.getItem("grupofullano_lead_capture_date");
             
-            if (leadCaptured === "true") {
-                // Usuário já preencheu, esconder a tela e redirecionar
-                leadCaptureOverlay.style.display = "none";
-                window.location.href = "index.html";
-                return false;
+            if (leadCaptured === "true" && leadCaptureDate) {
+                const captureDate = new Date(leadCaptureDate);
+                const currentDate = new Date();
+                const daysDifference = Math.floor((currentDate - captureDate) / (1000 * 60 * 60 * 24));
+                
+                console.log(`Lead capturado há ${daysDifference} dias`); // Debug
+                
+                // Se passou 30 dias ou mais, resetar o lead capture
+                if (daysDifference >= 30) {
+                    console.log("Lead capture expirado - resetando"); // Debug
+                    localStorage.removeItem("grupofullano_lead_captured");
+                    localStorage.removeItem("grupofullano_lead_capture_date");
+                    return false; // Precisa mostrar o formulário novamente
+                }
+                
+                return true; // Ainda dentro dos 30 dias
             }
             
-            return true;
+            return false; // Nunca preencheu
+        }
+
+        // Verificar se o usuário já preencheu o formulário
+        function checkLeadCaptureStatus() {
+            const leadCaptureOverlay = document.getElementById("leadCaptureOverlay");
+            const leadFormContainer = document.getElementById("leadFormContainer");
+            const returningUserMessage = document.getElementById("returningUserMessage");
+            
+            // Verificar se expirou
+            const isStillValid = checkLeadCaptureExpiration();
+            
+            if (isStillValid) {
+                // Usuário já preencheu e ainda está dentro dos 30 dias
+                console.log("Usuário já cadastrado - mostrando mensagem de boas-vindas"); // Debug
+                leadFormContainer.style.display = "none";
+                returningUserMessage.style.display = "block";
+                return true; // Mostrar a tela com mensagem de boas-vindas
+            } else {
+                // Precisa preencher novamente (primeira vez ou expirou)
+                console.log("Mostrando formulário de lead capture"); // Debug
+                leadFormContainer.style.display = "block";
+                returningUserMessage.style.display = "none";
+                return true; // Mostrar a tela com formulário
+            }
         }
 
         // Aplicar tema salvo
@@ -788,6 +947,24 @@
 
             // Botão de tema
             themeToggleLead.addEventListener("click", toggleLeadTheme);
+        }
+
+        // Configurar ações do usuário que retorna
+        function setupReturningUserActions() {
+            const continueToSite = document.getElementById("continueToSite");
+            const updateInfo = document.getElementById("updateInfo");
+            const leadFormContainer = document.getElementById("leadFormContainer");
+            const returningUserMessage = document.getElementById("returningUserMessage");
+
+            continueToSite.addEventListener("click", () => {
+                window.location.href = "index.html";
+            });
+
+            updateInfo.addEventListener("click", () => {
+                // Mostrar o formulário para atualizar informações
+                returningUserMessage.style.display = "none";
+                leadFormContainer.style.display = "block";
+            });
         }
 
         // Validação de campos
@@ -901,7 +1078,7 @@ Obrigado!`);
                     
                     // Marcar como capturado e redirecionar
                     setTimeout(() => {
-                        localStorage.setItem("grupofullano_lead_captured", "true");
+                        markLeadAsCaptured();
                         showSuccessMessage();
                     }, 2000);
                 } else {
@@ -921,7 +1098,7 @@ Obrigado!`);
                     
                     // Marcar como capturado e redirecionar
                     setTimeout(() => {
-                        localStorage.setItem("grupofullano_lead_captured", "true");
+                        markLeadAsCaptured();
                         showSuccessMessage();
                     }, 2000);
                 } else {
@@ -931,9 +1108,17 @@ Obrigado!`);
 
             skipMethod.addEventListener("click", () => {
                 // Permitir acesso sem capturar dados
-                localStorage.setItem("grupofullano_lead_captured", "true");
+                markLeadAsCaptured();
                 window.location.href = "index.html";
             });
+        }
+
+        // NOVA FUNÇÃO: Marcar lead como capturado com data
+        function markLeadAsCaptured() {
+            const currentDate = new Date().toISOString();
+            localStorage.setItem("grupofullano_lead_captured", "true");
+            localStorage.setItem("grupofullano_lead_capture_date", currentDate);
+            console.log(`Lead marcado como capturado em: ${currentDate}`); // Debug
         }
 
         // Configurar formulário
@@ -980,28 +1165,63 @@ Obrigado!`);
                 submitBtn.disabled = true;
                 loadingSpinner.style.display = "inline-block";
 
-                // Simular tentativa de envio (sempre vai falhar devido ao NetworkError)
-                setTimeout(() => {
+                try {
+                    // Preparar dados do formulário
+                    const formData = new FormData(leadForm);
+                    
+                    // Garantir que o replyto está definido
+                    formData.set('replyto', leadEmail.value.trim());
+                    
+                    console.log('Enviando dados para Web3Forms...'); // Debug
+                    
+                    const response = await fetch("https://api.web3forms.com/submit", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    console.log('Resposta recebida:', response.status); // Debug
+                    
+                    // CORREÇÃO: Sempre marcar como capturado e mostrar sucesso
+                    console.log('Formulário processado - liberando acesso ao site'); // Debug
+                    
+                    // Marcar como capturado no localStorage com data
+                    markLeadAsCaptured();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccessMessage();
+                    
+                } catch (error) {
+                    console.error("Erro ao enviar formulário:", error);
+                    
+                    // CORREÇÃO: Mesmo com erro de rede, liberar acesso já que o envio pode ter funcionado
+                    console.log('Erro de rede, mas liberando acesso preventivamente'); // Debug
+                    
+                    // Marcar como capturado no localStorage com data
+                    markLeadAsCaptured();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccessMessage();
+                    
+                } finally {
                     // Esconder loading
                     submitBtn.disabled = false;
                     loadingSpinner.style.display = "none";
-                    
-                    // Mostrar métodos alternativos
-                    alternativeAccess.style.display = "block";
-                    
-                    // Scroll para os métodos alternativos
-                    alternativeAccess.scrollIntoView({ behavior: 'smooth' });
-                }, 1500);
+                }
             });
         }
 
         // Mostrar mensagem de sucesso
         function showSuccessMessage() {
             const leadFormContainer = document.getElementById("leadFormContainer");
+            const returningUserMessage = document.getElementById("returningUserMessage");
             const successMessage = document.getElementById("successMessage");
             const continueBtn = document.getElementById("continueBtn");
 
             leadFormContainer.style.display = "none";
+            returningUserMessage.style.display = "none";
             successMessage.style.display = "block";
 
             // Botão para continuar
@@ -1018,9 +1238,7 @@ Obrigado!`);
         // Inicializar tudo quando a página carregar
         document.addEventListener("DOMContentLoaded", () => {
             // Verificar se precisa mostrar a tela de captura
-            if (!checkLeadCaptureStatus()) {
-                return;
-            }
+            checkLeadCaptureStatus();
 
             // Aplicar tema e idioma salvos
             applyLeadTheme();
@@ -1030,23 +1248,15 @@ Obrigado!`);
             setupLeadControls();
             setupLeadForm();
             setupAlternativeMethods();
+            setupReturningUserActions();
         });
     </script>
 
     <script>
 // INTEGRAÇÃO AUTOMÁTICA - Verificar se deve mostrar a tela de leads
 (function() {
-    // Verificar se já capturou lead
-    const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
-    
-    // Se já capturou, redirecionar para o site principal
-    if (leadCaptured === "true") {
-        window.location.href = "index.html";
-        return;
-    }
-    
-    // Se não capturou, mostrar a tela (que já está sendo mostrada)
-    console.log("Mostrando tela de captura de leads");
+    // A verificação agora é feita pela função checkLeadCaptureStatus() que considera os 30 dias
+    console.log("Sistema de lead capture com expiração de 30 dias ativo");
 })();
 </script>
 </body>

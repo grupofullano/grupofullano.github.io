@@ -21,19 +21,45 @@
     
     <!-- VERIFICAÇÃO DE LEAD CAPTURE - DEVE SER O PRIMEIRO SCRIPT -->
     <script>
-    (function() {
-        // Verificar se o usuário já preencheu o formulário de leads
+(function() {
+    // NOVA FUNÇÃO: Verificar se o lead capture expirou (30 dias)
+    function checkLeadCaptureExpiration() {
         const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
+        const leadCaptureDate = localStorage.getItem("grupofullano_lead_capture_date");
         
-        // Se não capturou lead, redirecionar para a página de captura
-        if (leadCaptured !== "true") {
-            window.location.href = "lead-capture.html";
-            return;
+        if (leadCaptured === "true" && leadCaptureDate) {
+            const captureDate = new Date(leadCaptureDate);
+            const currentDate = new Date();
+            const daysDifference = Math.floor((currentDate - captureDate) / (1000 * 60 * 60 * 24));
+            
+            console.log(`Lead capturado há ${daysDifference} dias`); // Debug
+            
+            // Se passou 30 dias ou mais, resetar o lead capture
+            if (daysDifference >= 30) {
+                console.log("Lead capture expirado - resetando"); // Debug
+                localStorage.removeItem("grupofullano_lead_captured");
+                localStorage.removeItem("grupofullano_lead_capture_date");
+                return false; // Precisa mostrar o formulário novamente
+            }
+            
+            return true; // Ainda dentro dos 30 dias
         }
         
-        console.log("Lead já capturado, permitindo acesso ao site");
-    })();
-    </script>
+        return false; // Nunca preencheu
+    }
+
+    // Verificar se o usuário já preencheu o formulário de leads
+    const isStillValid = checkLeadCaptureExpiration();
+    
+    // Se não capturou lead ou expirou, redirecionar para a página de captura
+    if (!isStillValid) {
+        window.location.href = "lead-capture.html";
+        return;
+    }
+    
+    console.log("Lead ainda válido, permitindo acesso ao site");
+})();
+</script>
 </head>
 <body>
     <!-- Splash Screen -->

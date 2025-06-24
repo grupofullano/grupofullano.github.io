@@ -11,6 +11,493 @@
   }
 })()
 
+// NOVA FUNCIONALIDADE: Sistema de expiração de 30 dias para lead capture
+function checkLeadCaptureExpiration() {
+  const leadCaptured = localStorage.getItem("grupofullano_lead_captured")
+  const leadCaptureDate = localStorage.getItem("grupofullano_lead_capture_date")
+
+  if (leadCaptured === "true" && leadCaptureDate) {
+    const captureDate = new Date(leadCaptureDate)
+    const currentDate = new Date()
+    const daysDifference = Math.floor((currentDate - captureDate) / (1000 * 60 * 60 * 24))
+
+    // Se passaram 30 dias ou mais, resetar o lead capture
+    if (daysDifference >= 30) {
+      localStorage.removeItem("grupofullano_lead_captured")
+      localStorage.removeItem("grupofullano_lead_capture_date")
+      localStorage.removeItem("grupofullano_cookies_dismissed")
+      localStorage.removeItem("grupofullano_cookies_accepted")
+      console.log("✅ Lead capture expirado após 30 dias - formulário disponível novamente")
+      return false // Formulário deve aparecer
+    }
+
+    return true // Ainda dentro dos 30 dias
+  }
+
+  return false // Nunca preencheu o formulário
+}
+
+// NOVA FUNCIONALIDADE: Sistema de cookies para usuários que já preencheram o lead
+function initializeCookieNotification() {
+  // Verificar se o usuário já preencheu o lead e está dentro dos 30 dias
+  const leadCaptured = localStorage.getItem("grupofullano_lead_captured")
+  const leadCaptureDate = localStorage.getItem("grupofullano_lead_capture_date")
+  const cookiesDismissed = localStorage.getItem("grupofullano_cookies_dismissed")
+
+  if (leadCaptured === "true" && leadCaptureDate && !cookiesDismissed) {
+    const captureDate = new Date(leadCaptureDate)
+    const currentDate = new Date()
+    const daysDifference = Math.floor((currentDate - captureDate) / (1000 * 60 * 60 * 24))
+
+    // Se ainda está dentro dos 30 dias, mostrar notificação de cookies
+    if (daysDifference < 30) {
+      setTimeout(() => {
+        showCookieNotification()
+      }, 2000) // Mostrar após 2 segundos
+    }
+  }
+}
+
+function showCookieNotification() {
+  // Verificar se já existe uma notificação
+  if (document.getElementById("cookieNotification")) {
+    return
+  }
+
+  const cookieNotification = document.createElement("div")
+  cookieNotification.id = "cookieNotification"
+  cookieNotification.className = "cookie-notification"
+
+  const currentLanguage = localStorage.getItem("preferredLanguage") || "pt"
+
+  const cookieTexts = {
+    pt: {
+      title: "🍪 Cookies e Experiência",
+      message:
+        "Utilizamos cookies e tecnologias similares para melhorar sua experiência de navegação, personalizar conteúdo e analisar nosso tráfego. Seus dados estão seguros conosco.",
+      accept: "Aceitar",
+      decline: "Recusar",
+      settings: "Configurações",
+    },
+    en: {
+      title: "🍪 Cookies & Experience",
+      message:
+        "We use cookies and similar technologies to improve your browsing experience, personalize content and analyze our traffic. Your data is safe with us.",
+      accept: "Accept",
+      decline: "Decline",
+      settings: "Settings",
+    },
+    es: {
+      title: "🍪 Cookies y Experiencia",
+      message:
+        "Utilizamos cookies y tecnologías similares para mejorar tu experiencia de navegación, personalizar contenido y analizar nuestro tráfico. Tus datos están seguros con nosotros.",
+      accept: "Aceptar",
+      decline: "Rechazar",
+      settings: "Configuraciones",
+    },
+  }
+
+  const texts = cookieTexts[currentLanguage] || cookieTexts.pt
+
+  cookieNotification.innerHTML = `
+    <div class="cookie-content">
+      <div class="cookie-header">
+        <h3 class="cookie-title">${texts.title}</h3>
+        <button class="cookie-close" id="cookieClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <p class="cookie-message">${texts.message}</p>
+      <div class="cookie-actions">
+        <button class="cookie-btn cookie-btn-accept" id="cookieAccept">${texts.accept}</button>
+        <button class="cookie-btn cookie-btn-decline" id="cookieDecline">${texts.decline}</button>
+        <button class="cookie-btn cookie-btn-settings" id="cookieSettings">${texts.settings}</button>
+      </div>
+    </div>
+  `
+
+  // Adicionar estilos CSS
+  const cookieStyles = document.createElement("style")
+  cookieStyles.textContent = `
+    .cookie-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      max-width: 400px;
+      width: calc(100vw - 40px);
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(100px);
+      transition: all 0.4s ease;
+      border: 2px solid #e5e7eb;
+    }
+
+    .cookie-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cookie-content {
+      padding: 1.5rem;
+    }
+
+    .cookie-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .cookie-title {
+      font-family: "NeueAlteGrotesk-Bold", sans-serif;
+      font-size: 1.1rem;
+      color: #265a96;
+      margin: 0;
+    }
+
+    .cookie-close {
+      background: none;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .cookie-close:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .cookie-message {
+      font-family: "NeueAlteGrotesk-Regular", sans-serif;
+      color: #666;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .cookie-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cookie-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: "NeueAlteGrotesk-Bold", sans-serif;
+      border: none;
+      flex: 1;
+      min-width: 80px;
+    }
+
+    .cookie-btn-accept {
+      background: linear-gradient(to right, #1c7dff, #0051c4);
+      color: white;
+    }
+
+    .cookie-btn-accept:hover {
+      background: linear-gradient(to right, #2289ff, #1c7dff);
+      transform: translateY(-1px);
+    }
+
+    .cookie-btn-decline {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .cookie-btn-decline:hover {
+      background: #e5e7eb;
+    }
+
+    .cookie-btn-settings {
+      background: transparent;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+
+    .cookie-btn-settings:hover {
+      background: #2563eb;
+      color: white;
+    }
+
+    /* Dark mode styles */
+    body.dark-mode .cookie-notification {
+      background: #0a1525;
+      border-color: #3b82f6;
+    }
+
+    body.dark-mode .cookie-title {
+      color: #60a5fa;
+    }
+
+    body.dark-mode .cookie-message {
+      color: #e2e8f0;
+    }
+
+    body.dark-mode .cookie-close {
+      color: #9ca3af;
+    }
+
+    body.dark-mode .cookie-close:hover {
+      background: #374151;
+      color: #d1d5db;
+    }
+
+    body.dark-mode .cookie-btn-decline {
+      background: #374151;
+      color: #d1d5db;
+      border-color: #4b5563;
+    }
+
+    body.dark-mode .cookie-btn-decline:hover {
+      background: #4b5563;
+    }
+
+    body.dark-mode .cookie-btn-settings {
+      color: #60a5fa;
+      border-color: #60a5fa;
+    }
+
+    body.dark-mode .cookie-btn-settings:hover {
+      background: #60a5fa;
+      color: #1a1a1a;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .cookie-notification {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        width: auto;
+      }
+
+      .cookie-content {
+        padding: 1rem;
+      }
+
+      .cookie-actions {
+        flex-direction: column;
+      }
+
+      .cookie-btn {
+        flex: none;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cookie-title {
+        font-size: 1rem;
+      }
+
+      .cookie-message {
+        font-size: 0.8rem;
+      }
+
+      .cookie-btn {
+        padding: 0.75rem 1rem;
+      }
+    }
+  `
+
+  document.head.appendChild(cookieStyles)
+  document.body.appendChild(cookieNotification)
+
+  // Mostrar com animação
+  setTimeout(() => {
+    cookieNotification.classList.add("show")
+  }, 100)
+
+  // Event listeners
+  document.getElementById("cookieClose").addEventListener("click", dismissCookieNotification)
+  document.getElementById("cookieAccept").addEventListener("click", acceptCookies)
+  document.getElementById("cookieDecline").addEventListener("click", declineCookies)
+  document.getElementById("cookieSettings").addEventListener("click", showCookieSettings)
+}
+
+function dismissCookieNotification() {
+  const notification = document.getElementById("cookieNotification")
+  if (notification) {
+    notification.classList.remove("show")
+    setTimeout(() => {
+      notification.remove()
+    }, 400)
+    localStorage.setItem("grupofullano_cookies_dismissed", "true")
+  }
+}
+
+function acceptCookies() {
+  localStorage.setItem("grupofullano_cookies_accepted", "true")
+  localStorage.setItem("grupofullano_cookies_dismissed", "true")
+  dismissCookieNotification()
+
+  // Mostrar toast de confirmação
+  showToast("✅ Cookies aceitos! Obrigado por melhorar sua experiência conosco.", "success")
+}
+
+function declineCookies() {
+  localStorage.setItem("grupofullano_cookies_accepted", "false")
+  localStorage.setItem("grupofullano_cookies_dismissed", "true")
+  dismissCookieNotification()
+
+  // Mostrar toast de confirmação
+  showToast("❌ Cookies recusados. Você ainda pode alterar isso nas configurações.", "info")
+}
+
+function showCookieSettings() {
+  // Implementar modal de configurações de cookies (opcional)
+  alert("Configurações de cookies em desenvolvimento. Por enquanto, use os botões Aceitar/Recusar.")
+}
+
+// NOVA FUNÇÃO: Toast notification system
+function showToast(message, type = "info", duration = 4000) {
+  // Remove existing toast if any
+  const existingToast = document.getElementById("toast-notification")
+  if (existingToast) {
+    existingToast.remove()
+  }
+
+  const toast = document.createElement("div")
+  toast.id = "toast-notification"
+  toast.className = `toast-notification toast-${type}`
+
+  toast.innerHTML = `
+    <div class="toast-content">
+      <span class="toast-message">${message}</span>
+      <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `
+
+  // Add toast styles if not already added
+  if (!document.getElementById("toast-styles")) {
+    const toastStyles = document.createElement("style")
+    toastStyles.id = "toast-styles"
+    toastStyles.textContent = `
+      .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        max-width: 400px;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.4s ease;
+        border-left: 4px solid #3b82f6;
+      }
+
+      .toast-notification.toast-success {
+        border-left-color: #10b981;
+      }
+
+      .toast-notification.toast-error {
+        border-left-color: #dc2626;
+      }
+
+      .toast-notification.toast-warning {
+        border-left-color: #f59e0b;
+      }
+
+      .toast-notification.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .toast-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        gap: 1rem;
+      }
+
+      .toast-message {
+        font-family: "NeueAlteGrotesk-Regular", sans-serif;
+        color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.4;
+      }
+
+      .toast-close {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .toast-close:hover {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      body.dark-mode .toast-notification {
+        background: #1f2937;
+      }
+
+      body.dark-mode .toast-message {
+        color: #e5e7eb;
+      }
+
+      body.dark-mode .toast-close {
+        color: #9ca3af;
+      }
+
+      body.dark-mode .toast-close:hover {
+        background: #374151;
+        color: #d1d5db;
+      }
+
+      @media (max-width: 768px) {
+        .toast-notification {
+          top: 10px;
+          right: 10px;
+          left: 10px;
+          max-width: none;
+        }
+      }
+    `
+    document.head.appendChild(toastStyles)
+  }
+
+  document.body.appendChild(toast)
+
+  // Show with animation
+  setTimeout(() => {
+    toast.classList.add("show")
+  }, 100)
+
+  // Auto remove after duration
+  setTimeout(() => {
+    toast.classList.remove("show")
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove()
+      }
+    }, 400)
+  }, duration)
+}
+
 function initializeTheme() {
   const isDarkMode = localStorage.getItem("darkMode") === "true"
   const themeToggle = document.querySelector(".theme-toggle")
@@ -789,7 +1276,7 @@ function translatePage() {
   // Update placeholder
   const aiInput = document.getElementById("aiInput")
   if (aiInput && translations[currentLanguage].aiInputPlaceholder) {
-    aiInput.placeholder = translations[currentLanguage].aiInputPlac
+    aiInput.placeholder = translations[currentLanguage].aiInputPlaceholder
   }
 }
 
@@ -1660,7 +2147,7 @@ function getAIResponse(userMessage) {
   }
 }
 
-// Show cardapio options
+// Show cardápio options
 function showCardapioOptions() {
   const chatBody = document.getElementById("aiChatBody")
   const messageDiv = document.createElement("div")
@@ -1710,7 +2197,8 @@ function showRestaurantCardapio(restaurantName) {
   const restaurantLinks = {
     "Fullano Praia": "https://drive.google.com/drive/folders/1D8CydBS3LXtiJzmdPiTsPBWmLlWv6Pr6?usp=drive_link",
     "Golfinho Bar": "https://drive.google.com/drive/folders/1kdPntoanLQuIV79Q-ar4_KT4eKBHbipY?usp=drive_link",
-    "Lovina Ponta de Campina": "https://drive.google.com/drive/folders/11xXyvPlR65pPjoJ3AV69-4kZnrUOYUru?usp=drive_link",
+    "Lovina Ponta de Campina":
+      "https://drive.google.com/drive/folders/11xXyvPlR65pPjoJ3AV69-4kZnrUOYUru?usp=drive_link",
     "Lovina Seixas": "https://drive.google.com/drive/folders/11sRNyEoRPjuuN86ZidUyHlZ2k1CJaQD_?usp=drive_link",
   }
 
@@ -2378,9 +2866,14 @@ function showMobileContextMenu(event, message) {
   const copyText =
     currentLanguage === "en" ? "Copy message" : currentLanguage === "es" ? "Copiar mensaje" : "Copiar mensagem"
 
-  contextMenu.innerHTML = `
-    <button class="context-menu-item" onclick="copyMessageToClipboard('${message.replace(/'/g, "\\'")}')">
-      <i class="fas fa-copy"></i> ${copyText}
+  contextMenu.innerHTML =
+    `
+    <button class="context-menu-item" onclick="copyMessageToClipboard(&quot;` +
+    message.replace(/'/g, "\\'") +
+    `&quot;)">
+      <i class="fas fa-copy"></i> ` +
+    copyText +
+    `
     </button>
   `
 
@@ -2416,50 +2909,6 @@ function copyMessageToClipboard(message) {
             : "Message copied!"
     showToast(copiedText)
   })
-}
-
-// Show toast notification
-function showToast(message, type = "success") {
-  const toast = document.createElement("div")
-  toast.className = `toast toast-${type}`
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === "success" ? "#10b981" : "#ef4444"};
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: "NeueAlteGrotesk-Regular", sans-serif;
-    font-size: 0.875rem;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-  `
-
-  toast.innerHTML = `
-    <i class="fas fa-${type === "success" ? "check" : "exclamation-triangle"}"></i>
-    <span>${message}</span>
-  `
-
-  document.body.appendChild(toast)
-
-  setTimeout(() => {
-    toast.style.transform = "translateX(0)"
-  }, 100)
-
-  setTimeout(() => {
-    toast.style.transform = "translateX(100%)"
-    setTimeout(() => {
-      if (document.body.contains(toast)) {
-        document.body.removeChild(toast)
-      }
-    }, 300)
-  }, 3000)
 }
 
 // SISTEMA DE CONTROLE DE HOVER MELHORADO - Evita conflitos
@@ -2543,6 +2992,10 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
 
 // Initialize everything
 document.addEventListener("DOMContentLoaded", () => {
+  // NOVA FUNCIONALIDADE: Verificar expiração do lead capture e inicializar cookies
+  checkLeadCaptureExpiration()
+  initializeCookieNotification()
+
   populateLocations()
   populateTestimonials()
   populateGallery()

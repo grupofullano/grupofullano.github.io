@@ -10,13 +10,36 @@
     <!-- VERIFICAÇÃO DE LEAD CAPTURE PARA RESERVAS -->
     <script>
     (function() {
+    // NOVA FUNÇÃO: Verificar se o lead capture expirou (30 dias)
+    function checkLeadCaptureExpiration() {
         const leadCaptured = localStorage.getItem("grupofullano_lead_captured");
-        if (leadCaptured !== "true") {
-            window.location.href = "lead-capture.html";
-            return;
+        const leadCaptureDate = localStorage.getItem("grupofullano_lead_capture_date");
+        
+        if (leadCaptured === "true" && leadCaptureDate) {
+            const captureDate = new Date(leadCaptureDate);
+            const currentDate = new Date();
+            const daysDifference = Math.floor((currentDate - captureDate) / (1000 * 60 * 60 * 24));
+            
+            // Se passou 30 dias ou mais, resetar o lead capture
+            if (daysDifference >= 30) {
+                localStorage.removeItem("grupofullano_lead_captured");
+                localStorage.removeItem("grupofullano_lead_capture_date");
+                return false; // Precisa mostrar o formulário novamente
+            }
+            
+            return true; // Ainda dentro dos 30 dias
         }
-    })();
-    </script>
+        
+        return false; // Nunca preencheu
+    }
+
+    const isStillValid = checkLeadCaptureExpiration();
+    if (!isStillValid) {
+        window.location.href = "lead-capture.html";
+        return;
+    }
+})();
+</script>
 </head>
 <body>
     <!-- Header -->
