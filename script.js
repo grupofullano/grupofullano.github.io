@@ -992,7 +992,7 @@ const translations = {
     // Navigation
     aboutUs: "Sobre nós",
     restaurants: "Restaurantes",
-    location: "Localização",
+    location: "Trabalhe conosco",
     faq: "FAQ",
     reserveButton: "Reservar já",
 
