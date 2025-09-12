@@ -10,7 +10,7 @@ const reservationTranslations = {
 
     // Reservation Form
     reservationTitle: "Faça sua Reserva",
-    reservationSubtitle: "Reserve seu lounge ou área com piscina em nossos restaurantes",
+    reservationSubtitle: "Reserve seu lounge ou área com piscina em nossos restaurantes. ATENÇÃO: Para reservas no mesmo dia, só é possível reservar até as 11h da manhã.",
     validationMessage: "Por favor, preencha todos os campos obrigatórios",
 
     // Form Labels
@@ -80,7 +80,7 @@ const reservationTranslations = {
 
     // Reservation Form
     reservationTitle: "Make Your Reservation",
-    reservationSubtitle: "Reserve your lounge or pool area at our restaurants",
+    reservationSubtitle: "Reserve your lounge or pool area at our restaurants. ATTENTION: For same-day reservations, it is only possible to book until 11:00 a.m.",
     validationMessage: "Please fill in all required fields",
 
     // Form Labels
@@ -150,7 +150,7 @@ const reservationTranslations = {
 
     // Reservation Form
     reservationTitle: "Haz tu Reserva",
-    reservationSubtitle: "Reserva tu lounge o área de piscina en nuestros restaurantes",
+    reservationSubtitle: "Reserve su lounge o área con piscina en nuestros restaurantes. ATENCIÓN: Para reservas en el mismo día, solo es posible reservar hasta las 11:00 de la mañana.",
     validationMessage: "Por favor, completa todos los campos obligatorios",
 
     // Form Labels
